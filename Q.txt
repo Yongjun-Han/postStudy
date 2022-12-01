@@ -1,0 +1,7 @@
+port : 5580
+request.method = "POST"
+<form method="POST">
+event : Enter
+설명 : post form에 데이터를 넣은 후 엔터를 누르면
+이벤트가 실행되어 -> 임의의 디렉토리에 JSON파일로 날짜와 함께 저장됨
+날짜구하는 API : new Date()
