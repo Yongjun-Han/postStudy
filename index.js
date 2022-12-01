@@ -4,59 +4,57 @@ const qs = require('querystring');
 const url = require('url');
 const port = 5580;
 
+//생성할 데이터 포맷
+class jsonMaker {
+  constructor(nickname, age, date) {
+    this.nickname = nickname
+    this.age = age
+    this.date = date
+  }
+}
+
 http.createServer( (req,res)=> {
-  
-      let _url = req.url;
-      let pathname = url.parse(_url, true).pathname;
-      // let urlObject = url.parse(_url, true).query // Object
-      // let urlString = url.parse(_url, false).query // String
+      //기본요청처리 인풋페이지 보여줌
       if(req.method === "GET") {
           fs.readFile('./index.html' ,'utf8' ,function(error, data) {
           res.writeHead(200, {'Content-Type' : 'text/html'});
           res.end(data);
         });
       }
-
+      //post 로 입력받은 값 처리 
       if(req.method === "POST") {
-          fs.readFile('./main.html' ,'utf8' ,function(error, data) {
-          res.writeHead(200, {'Content-Type' : 'text/html'});
-          res.end(data);
+          //쿼리스트링 받을 변수 선언
+          let target = ""
+          //데이터가 제출되면 실행될 함수 
+          req.on("data",(chunk)=> {
+            // console.log(chunk)
+            // console.log(qs.parse(chunk.toString()))
+            target = qs.parse(chunk.toString())
+
+            //날짜처리에 필요한 변수 선언
+            let today = new Date()
+            //년
+            let year = today.getFullYear()
+            //월 : 월 은 0부터 시작하므로 1더하기
+            let month = today.getMonth()+1
+            //일
+            let day = today.getDate()     
+            //파일명으로 사용할 생성날짜 
+            let YMD = year+"-"+month+"-"+day
+
+            //객체데이터 생성
+            let value = new jsonMaker(target.nickname, target.age, today.toString())
+            // console.log(value)
+
+            res.writeHead(200, {'Content-Type' : 'text/html'});
+            fs.writeFile(`./${YMD}.json`,JSON.stringify(Object(value),null,2),(err) =>{
+              if(err) throw err;
+            })
+            fs.readFile('./main.html' ,'utf8' ,function(error, data) {
+            res.end(data);
+          })
         });
       }
-      // else if(pathname === '/getlogin') {
-      //   fs.readFile('./index.html' ,'utf8' ,function(error, data) {
-      //     res.writeHead(200, {'Content-Type' : 'text/html'});
-      //     res.end(data);
-      //     // console.dir(pathname);
-      //     console.log(urlObject);
-      //     // console.log(typeof urlString);
-      //     console.log(qs.parse(urlString));
-
-          
-      //     fs.writeFile('./memo.txt', urlObject.id  , (err,data) => {
-      //       if(err) throw err;
-      //     })
-          
-      //   });
-      // }
-      
-      // else if(pathname === '/postlogin') {
-      //   req.on('data', function(chunk) {
-      //       console.log(chunk);
-      //       console.log(chunk.toString());
-      //       let chunkString = chunk.toString();
-
-      //       console.log(qs.parse(chunkString))
-
-      //       let chunkObject = qs.parse(chunkString)
-
-      //       // res.writeHead(200,{'Content-Type' : 'text/html'});
-      //       fs.writeFile('./postmemo.json', JSON.stringify(Object(chunkObject),null) , (err) => {
-      //         if(err) throw err;
-      //       });
-      //       res.end();
-      //     });
-      //   }
       }).listen(port, function() {
         console.log('server is running >>>')
       })
