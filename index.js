@@ -1,11 +1,10 @@
 const http = require('http');
 const fs = require('fs');
 const qs = require('querystring');
-const url = require('url');
 const port = 5580;
 
 //생성할 데이터 포맷
-class jsonMaker {
+class objMaker {
   constructor(nickname, age, date) {
     this.nickname = nickname
     this.age = age
@@ -43,11 +42,11 @@ http.createServer( (req,res)=> {
             let YMD = year+"-"+month+"-"+day
 
             //객체데이터 생성
-            let value = new jsonMaker(target.nickname, target.age, today.toString())
+            let value = new objMaker(target.nickname, target.age, today.toString())
             // console.log(value)
 
             res.writeHead(200, {'Content-Type' : 'text/html'});
-            fs.writeFile(`./${YMD}.json`,JSON.stringify(Object(value),null,2),(err) =>{
+            fs.writeFile(`./${YMD}.json`,JSON.stringify(value,null,2),(err) =>{
               if(err) throw err;
             })
             fs.readFile('./main.html' ,'utf8' ,function(error, data) {
